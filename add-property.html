@@ -11,13 +11,14 @@
       background: white; padding: 25px; border-radius: 15px; 
       max-width: 500px; margin: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     }
-    header { text-align: center; margin-bottom: 20px; }
-    label { display: block; margin-bottom: 5px; font-weight: bold; color: #334155; }
+    header { text-align: center; margin-bottom: 20px; color: #0f172a; }
+    label { display: block; margin-bottom: 5px; font-weight: bold; color: #334155; text-align: right; }
     input, select, button { 
       width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 8px; 
-      border: 1px solid #ddd; font-size: 15px; 
+      border: 1px solid #ddd; font-size: 15px; text-align: right;
     }
-    button { background: #16a34a; color: white; border: none; cursor: pointer; font-weight: bold; }
+    button { background: #16a34a; color: white; border: none; cursor: pointer; font-weight: bold; transition: 0.3s; }
+    button:hover { background: #15803d; }
     .preview-img { width: 100%; height: auto; border-radius: 8px; margin-bottom: 15px; display: none; }
   </style>
 </head>
@@ -25,17 +26,17 @@
 
 <div class="form-container">
   <header>
-    <h2>أضف معلومات العقار</h2>
+    <h2>أدخل تفاصيل العقار الجديد</h2>
   </header>
 
   <label>عنوان العقار</label>
-  <input type="text" id="title" placeholder="مثلاً: منزل طابقين للبيع">
+  <input type="text" id="title" placeholder="مثلاً: شقة فاخرة للبيع">
 
   <label>المدينة</label>
-  <input type="text" id="city" placeholder="وجدة، بركان، الناظور...">
+  <input type="text" id="city" placeholder="مثلاً: وجدة">
 
   <label>الثمن</label>
-  <input type="text" id="price" placeholder="مثلاً: 3500 درهم/شهر">
+  <input type="text" id="price" placeholder="مثلاً: 400,000 درهم">
 
   <label>رقم الهاتف (واتساب)</label>
   <input type="tel" id="phone" placeholder="06XXXXXXXX">
@@ -46,54 +47,72 @@
     <option value="كراء">كراء</option>
   </select>
 
-  <label>صورة العقار (من هاتفك)</label>
+  <label>صورة العقار</label>
   <input type="file" id="fileInput" accept="image/*" onchange="previewImage()">
   <img id="imgPreview" class="preview-img">
 
-  <button onclick="saveProperty()">حفظ ونشر الآن</button>
-  <a href="index.html" style="display:block; text-align:center; color:#64748b; text-decoration:none;">إلغاء</a>
+  <button id="saveBtn" onclick="saveProperty()">حفظ ونشر العقار</button>
+  <a href="index.html" style="display:block; text-align:center; color:#64748b; text-decoration:none; font-size: 14px;">← العودة للرئيسية</a>
 </div>
 
 <script>
   let base64Image = "";
 
-  // دالة لتحويل الصورة لـ Text (Base64) باش تتخزن فالمتصفح
+  // دالة معاينة الصورة وتحويلها لكود قابل للتخزين
   function previewImage() {
-    const file = document.getElementById('fileInput').files[0];
-    const reader = new FileReader();
+    const fileInput = document.getElementById('fileInput');
     const preview = document.getElementById('imgPreview');
+    const file = fileInput.files[0];
 
-    reader.onloadend = function() {
-      base64Image = reader.result;
-      preview.src = base64Image;
-      preview.style.display = "block";
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        base64Image = e.target.result;
+        preview.src = base64Image;
+        preview.style.display = "block";
+      }
+      reader.readAsDataURL(file);
     }
-    if (file) { reader.readAsDataURL(file); }
   }
 
   function saveProperty() {
-    const title = document.getElementById('title').value;
-    const city = document.getElementById('city').value;
-    const price = document.getElementById('price').value;
-    const phone = document.getElementById('phone').value;
+    // جلب القيم من المدخلات
+    const title = document.getElementById('title').value.trim();
+    const city = document.getElementById('city').value.trim();
+    const price = document.getElementById('price').value.trim();
+    const phone = document.getElementById('phone').value.trim();
     const type = document.getElementById('type').value;
 
-    if(!title || !city || !phone) {
-      alert("المرجو ملء جميع الخانات الأساسية");
+    // التأكد من ملء الخانات الأساسية
+    if(!title || !city || !price || !phone) {
+      alert("المرجو ملء جميع الخانات الأساسية!");
       return;
     }
 
+    // إعداد كائن العقار الجديد
     const newProperty = { 
-      title, city, price, type, phone,
-      img: base64Image || "https://via.placeholder.com/400x200?text=No+Image" 
+      title: title, 
+      city: city, 
+      price: price, 
+      type: type, 
+      phone: phone,
+      img: base64Image || "https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=400&q=80" 
     };
 
-    let properties = JSON.parse(localStorage.getItem('hani_properties')) || [];
-    properties.unshift(newProperty);
-    localStorage.setItem('hani_properties', JSON.stringify(properties));
+    try {
+      // جلب البيانات القديمة وإضافة الجديد
+      let properties = JSON.parse(localStorage.getItem('hani_properties')) || [];
+      properties.unshift(newProperty);
+      
+      // حفظ في LocalStorage
+      localStorage.setItem('hani_properties', JSON.stringify(properties));
 
-    alert("تمت الإضافة بنجاح!");
-    window.location.href = "index.html";
+      alert("تم حفظ العقار بنجاح!");
+      window.location.href = "index.html"; // الرجوع للرئيسية
+    } catch (error) {
+      console.error("خطأ في الحفظ:", error);
+      alert("حدث خطأ أثناء الحفظ، قد تكون الصورة كبيرة جداً.");
+    }
   }
 </script>
 
