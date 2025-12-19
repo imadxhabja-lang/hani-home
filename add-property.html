@@ -2,102 +2,92 @@
 <html lang="ar">
 <head>
   <meta charset="UTF-8">
-  <title>إضافة عقار | Hani Home</title>
+  <title>Hani Home | إضافة عقار جديد</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    * {
-      box-sizing: border-box;
-      font-family: Arial, sans-serif;
+    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { margin: 0; background: #f4f6f8; direction: rtl; padding: 20px; }
+    header { 
+      background: #0f172a; color: white; padding: 20px; text-align: center; 
+      margin: -20px -20px 25px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
     }
-    body {
-      margin: 0;
-      background: #f4f6f8;
-      direction: rtl;
+    .form-container { 
+      background: white; padding: 25px; border-radius: 15px; 
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05); max-width: 500px; margin: auto;
     }
-    header {
-      background: #0f172a;
-      color: white;
-      padding: 16px;
-      text-align: center;
+    label { display: block; margin-bottom: 8px; font-weight: bold; color: #475569; }
+    input, select, button { 
+      width: 100%; padding: 12px; margin-bottom: 20px; border-radius: 8px; 
+      border: 1px solid #ddd; font-size: 15px; outline: none;
     }
-    header h1 {
-      margin: 0;
-      font-size: 20px;
+    input:focus { border-color: #2563eb; }
+    button { 
+      background: #16a34a; color: white; font-weight: bold; border: none; 
+      cursor: pointer; font-size: 16px; transition: 0.3s;
     }
-    .container {
-      padding: 15px;
-    }
-    label {
-      display: block;
-      margin-bottom: 5px;
-      font-weight: bold;
-      font-size: 14px;
-    }
-    input, select, textarea, button {
-      width: 100%;
-      padding: 10px;
-      margin-bottom: 15px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      font-size: 14px;
-    }
-    textarea {
-      resize: vertical;
-      min-height: 80px;
-    }
-    button {
-      background: #2563eb;
-      color: white;
-      border: none;
-      font-size: 16px;
-    }
-    .note {
-      font-size: 13px;
-      color: #555;
-      margin-top: -10px;
-      margin-bottom: 15px;
-    }
+    button:hover { background: #15803d; }
+    .back-link { display: block; text-align: center; text-decoration: none; color: #64748b; font-size: 14px; }
   </style>
 </head>
 <body>
 
 <header>
-  <h1>إضافة عقار</h1>
+  <h1>Hani Home</h1>
+  <p>أدخل تفاصيل العقار الجديد</p>
 </header>
 
-<div class="container">
-
-  <label>نوع العملية</label>
-  <select>
-    <option>بيع</option>
-    <option>كراء</option>
-  </select>
-
-  <label>نوع العقار</label>
-  <select>
-    <option>شقة</option>
-    <option>منزل</option>
-    <option>فيلا</option>
-    <option>محل تجاري</option>
-    <option>أرض</option>
-  </select>
+<div class="form-container">
+  <label>عنوان العقار</label>
+  <input type="text" id="title" placeholder="مثلاً: شقة فاخرة للبيع">
 
   <label>المدينة</label>
-  <input type="text" placeholder="مثال: وجدة">
+  <input type="text" id="city" placeholder="مثلاً: وجدة">
 
-  <label>السعر</label>
-  <input type="number" placeholder="بالدرهم">
+  <label>الثمن</label>
+  <input type="text" id="price" placeholder="مثلاً: 400,000 درهم">
 
-  <label>صور العقار</label>
-  <input type="file" multiple>
-  <div class="note">يمكنك اختيار أكثر من صورة</div>
+  <label>نوع العرض</label>
+  <select id="type">
+    <option value="بيع">بيع</option>
+    <option value="كراء">كراء</option>
+  </select>
 
-  <label>وصف العقار</label>
-  <textarea placeholder="اكتب وصفًا مختصرًا للعقار"></textarea>
+  <label>رابط صورة (اختياري)</label>
+  <input type="text" id="img" placeholder="ضع رابط صورة هنا">
 
-  <button>إضافة العقار</button>
-
+  <button onclick="saveProperty()">حفظ ونشر العقار</button>
+  <a href="index.html" class="back-link">← العودة للصفحة الرئيسية</a>
 </div>
 
+<script>
+  function saveProperty() {
+    const title = document.getElementById('title').value;
+    const city = document.getElementById('city').value;
+    const price = document.getElementById('price').value;
+    const type = document.getElementById('type').value;
+    const imgInput = document.getElementById('img').value;
+
+    // صورة افتراضية إذا لم يتم وضع رابط
+    const img = imgInput || "https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=400&q=80";
+
+    if(!title || !city || !price) {
+      alert("المرجو ملء الخانات الأساسية (العنوان، المدينة، والثمن)");
+      return;
+    }
+
+    const newProperty = { title, city, price, type, img };
+
+    // جلب العقارات القديمة وزيادة الجديد في الأول
+    let properties = JSON.parse(localStorage.getItem('hani_properties')) || [];
+    properties.unshift(newProperty);
+
+    // حفظ القائمة الجديدة
+    localStorage.setItem('hani_properties', JSON.stringify(properties));
+
+    alert("تم حفظ العقار بنجاح!");
+    window.location.href = "index.html"; // الرجوع للرئيسية لرؤية النتيجة
+  }
+</script>
+
 </body>
-  </html>
+</html>
