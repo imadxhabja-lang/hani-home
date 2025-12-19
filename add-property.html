@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>إضافة عقار | Hani Home</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+    body {
+      margin: 0;
+      background: #f4f6f8;
+      direction: rtl;
+    }
+    header {
+      background: #0f172a;
+      color: white;
+      padding: 16px;
+      text-align: center;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 20px;
+    }
+    .container {
+      padding: 15px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+      font-size: 14px;
+    }
+    input, select, textarea, button {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+    button {
+      background: #2563eb;
+      color: white;
+      border: none;
+      font-size: 16px;
+    }
+    .note {
+      font-size: 13px;
+      color: #555;
+      margin-top: -10px;
+      margin-bottom: 15px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>إضافة عقار</h1>
+</header>
+
+<div class="container">
+
+  <label>نوع العملية</label>
+  <select>
+    <option>بيع</option>
+    <option>كراء</option>
+  </select>
+
+  <label>نوع العقار</label>
+  <select>
+    <option>شقة</option>
+    <option>منزل</option>
+    <option>فيلا</option>
+    <option>محل تجاري</option>
+    <option>أرض</option>
+  </select>
+
+  <label>المدينة</label>
+  <input type="text" placeholder="مثال: وجدة">
+
+  <label>السعر</label>
+  <input type="number" placeholder="بالدرهم">
+
+  <label>صور العقار</label>
+  <input type="file" multiple>
+  <div class="note">يمكنك اختيار أكثر من صورة</div>
+
+  <label>وصف العقار</label>
+  <textarea placeholder="اكتب وصفًا مختصرًا للعقار"></textarea>
+
+  <button>إضافة العقار</button>
+
+</div>
+
+</body>
+  </html>
