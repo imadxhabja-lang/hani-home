@@ -2,49 +2,43 @@
 <html lang="ar">
 <head>
   <meta charset="UTF-8">
-  <title>Hani Home | إضافة عقار جديد</title>
+  <title>Hani Home | إضافة عقار</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
     body { margin: 0; background: #f4f6f8; direction: rtl; padding: 20px; }
-    header { 
-      background: #0f172a; color: white; padding: 20px; text-align: center; 
-      margin: -20px -20px 25px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
-    }
     .form-container { 
       background: white; padding: 25px; border-radius: 15px; 
-      box-shadow: 0 4px 15px rgba(0,0,0,0.05); max-width: 500px; margin: auto;
+      max-width: 500px; margin: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     }
-    label { display: block; margin-bottom: 8px; font-weight: bold; color: #475569; }
+    header { text-align: center; margin-bottom: 20px; }
+    label { display: block; margin-bottom: 5px; font-weight: bold; color: #334155; }
     input, select, button { 
-      width: 100%; padding: 12px; margin-bottom: 20px; border-radius: 8px; 
-      border: 1px solid #ddd; font-size: 15px; outline: none;
+      width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 8px; 
+      border: 1px solid #ddd; font-size: 15px; 
     }
-    input:focus { border-color: #2563eb; }
-    button { 
-      background: #16a34a; color: white; font-weight: bold; border: none; 
-      cursor: pointer; font-size: 16px; transition: 0.3s;
-    }
-    button:hover { background: #15803d; }
-    .back-link { display: block; text-align: center; text-decoration: none; color: #64748b; font-size: 14px; }
+    button { background: #16a34a; color: white; border: none; cursor: pointer; font-weight: bold; }
+    .preview-img { width: 100%; height: auto; border-radius: 8px; margin-bottom: 15px; display: none; }
   </style>
 </head>
 <body>
 
-<header>
-  <h1>Hani Home</h1>
-  <p>أدخل تفاصيل العقار الجديد</p>
-</header>
-
 <div class="form-container">
+  <header>
+    <h2>أضف معلومات العقار</h2>
+  </header>
+
   <label>عنوان العقار</label>
-  <input type="text" id="title" placeholder="مثلاً: شقة فاخرة للبيع">
+  <input type="text" id="title" placeholder="مثلاً: منزل طابقين للبيع">
 
   <label>المدينة</label>
-  <input type="text" id="city" placeholder="مثلاً: وجدة">
+  <input type="text" id="city" placeholder="وجدة، بركان، الناظور...">
 
   <label>الثمن</label>
-  <input type="text" id="price" placeholder="مثلاً: 400,000 درهم">
+  <input type="text" id="price" placeholder="مثلاً: 3500 درهم/شهر">
+
+  <label>رقم الهاتف (واتساب)</label>
+  <input type="tel" id="phone" placeholder="06XXXXXXXX">
 
   <label>نوع العرض</label>
   <select id="type">
@@ -52,40 +46,54 @@
     <option value="كراء">كراء</option>
   </select>
 
-  <label>رابط صورة (اختياري)</label>
-  <input type="text" id="img" placeholder="ضع رابط صورة هنا">
+  <label>صورة العقار (من هاتفك)</label>
+  <input type="file" id="fileInput" accept="image/*" onchange="previewImage()">
+  <img id="imgPreview" class="preview-img">
 
-  <button onclick="saveProperty()">حفظ ونشر العقار</button>
-  <a href="index.html" class="back-link">← العودة للصفحة الرئيسية</a>
+  <button onclick="saveProperty()">حفظ ونشر الآن</button>
+  <a href="index.html" style="display:block; text-align:center; color:#64748b; text-decoration:none;">إلغاء</a>
 </div>
 
 <script>
+  let base64Image = "";
+
+  // دالة لتحويل الصورة لـ Text (Base64) باش تتخزن فالمتصفح
+  function previewImage() {
+    const file = document.getElementById('fileInput').files[0];
+    const reader = new FileReader();
+    const preview = document.getElementById('imgPreview');
+
+    reader.onloadend = function() {
+      base64Image = reader.result;
+      preview.src = base64Image;
+      preview.style.display = "block";
+    }
+    if (file) { reader.readAsDataURL(file); }
+  }
+
   function saveProperty() {
     const title = document.getElementById('title').value;
     const city = document.getElementById('city').value;
     const price = document.getElementById('price').value;
+    const phone = document.getElementById('phone').value;
     const type = document.getElementById('type').value;
-    const imgInput = document.getElementById('img').value;
 
-    // صورة افتراضية إذا لم يتم وضع رابط
-    const img = imgInput || "https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=400&q=80";
-
-    if(!title || !city || !price) {
-      alert("المرجو ملء الخانات الأساسية (العنوان، المدينة، والثمن)");
+    if(!title || !city || !phone) {
+      alert("المرجو ملء جميع الخانات الأساسية");
       return;
     }
 
-    const newProperty = { title, city, price, type, img };
+    const newProperty = { 
+      title, city, price, type, phone,
+      img: base64Image || "https://via.placeholder.com/400x200?text=No+Image" 
+    };
 
-    // جلب العقارات القديمة وزيادة الجديد في الأول
     let properties = JSON.parse(localStorage.getItem('hani_properties')) || [];
     properties.unshift(newProperty);
-
-    // حفظ القائمة الجديدة
     localStorage.setItem('hani_properties', JSON.stringify(properties));
 
-    alert("تم حفظ العقار بنجاح!");
-    window.location.href = "index.html"; // الرجوع للرئيسية لرؤية النتيجة
+    alert("تمت الإضافة بنجاح!");
+    window.location.href = "index.html";
   }
 </script>
 
