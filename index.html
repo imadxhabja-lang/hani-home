@@ -5,235 +5,90 @@
   <title>Hani Home | عقارات المغرب</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    /* الإعدادات العامة */
-    * {
-      box-sizing: border-box;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+    body { margin: 0; background: #f4f6f8; direction: rtl; color: #333; }
+    header { background: #0f172a; color: white; padding: 20px; text-align: center; }
+    .add-btn { margin: 15px; }
+    .add-btn a { display: block; text-align: center; background: #16a34a; color: white; padding: 14px; border-radius: 10px; text-decoration: none; font-weight: bold; }
+    
+    #propertiesContainer { padding-bottom: 30px; }
+    .card { background: white; margin: 15px; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); position: relative; }
+    .card img { width: 100%; height: 200px; object-fit: cover; }
+    .card-content { padding: 15px; }
+    .price { color: #16a34a; font-weight: bold; font-size: 18px; margin: 10px 0; }
+    
+    /* أزرار التحكم */
+    .card-actions { display: flex; gap: 10px; margin-top: 10px; }
+    .whatsapp-btn { 
+      flex: 1; background: #25d366; color: white; text-align: center; 
+      padding: 10px; border-radius: 8px; text-decoration: none; font-weight: bold;
     }
-    body {
-      margin: 0;
-      background: #f4f6f8;
-      direction: rtl;
-      color: #333;
+    .delete-btn { 
+      background: #ef4444; color: white; border: none; padding: 10px 15px; 
+      border-radius: 8px; cursor: pointer; font-weight: bold;
     }
-    header {
-      background: #0f172a;
-      color: white;
-      padding: 20px;
-      text-align: center;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    }
-    header h1 {
-      margin: 0;
-      font-size: 24px;
-      letter-spacing: 1px;
-    }
-    header p {
-      margin: 6px 0 0;
-      font-size: 14px;
-      color: #cbd5f5;
-    }
-
-    /* زر إضافة عقار */
-    .add-btn {
-      margin: 15px;
-    }
-    .add-btn a {
-      display: block;
-      text-align: center;
-      background: #16a34a;
-      color: white;
-      padding: 14px;
-      border-radius: 10px;
-      text-decoration: none;
-      font-weight: bold;
-      transition: 0.3s;
-    }
-    .add-btn a:hover {
-      background: #15803d;
-    }
-
-    /* مربع البحث */
-    .search-box {
-      background: white;
-      padding: 20px;
-      margin: 15px;
-      border-radius: 12px;
-      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
-    }
-    .search-box select,
-    .search-box input,
-    .search-box button {
-      width: 100%;
-      padding: 12px;
-      margin-bottom: 12px;
-      border-radius: 8px;
-      border: 1px solid #ddd;
-      font-size: 15px;
-      outline: none;
-    }
-    .search-box input:focus {
-      border-color: #2563eb;
-    }
-    .search-box button {
-      background: #2563eb;
-      color: white;
-      border: none;
-      font-weight: bold;
-      cursor: pointer;
-      margin-bottom: 0;
-    }
-    .search-box button:hover {
-      background: #1d4ed8;
-    }
-
-    /* قسم العقارات */
-    .section-title {
-      margin: 25px 15px 15px;
-      font-size: 20px;
-      font-weight: bold;
-      border-right: 4px solid #2563eb;
-      padding-right: 10px;
-    }
-
-    #propertiesContainer {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-      padding-bottom: 30px;
-    }
-
-    .card {
-      background: white;
-      margin: 0 15px;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-      transition: transform 0.2s;
-    }
-    .card:active {
-      transform: scale(0.98);
-    }
-    .card img {
-      width: 100%;
-      height: 180px;
-      object-fit: cover;
-    }
-    .card-content {
-      padding: 15px;
-    }
-    .card-content strong {
-      display: block;
-      font-size: 17px;
-      margin-bottom: 5px;
-    }
-    .card-content .city {
-      color: #64748b;
-      font-size: 14px;
-    }
-    .price {
-      color: #16a34a;
-      font-weight: bold;
-      font-size: 18px;
-      margin-top: 10px;
-    }
-
-    footer {
-      background: #0f172a;
-      color: #94a3b8;
-      text-align: center;
-      padding: 20px;
-      font-size: 13px;
-      margin-top: 20px;
-    }
+    
+    footer { background: #0f172a; color: white; text-align: center; padding: 20px; font-size: 13px; }
   </style>
 </head>
 <body>
 
 <header>
   <h1>Hani Home</h1>
-  <p>دليلك الأول للعقارات في المغرب</p>
+  <p>بيع وكراء العقارات في المغرب</p>
 </header>
 
 <div class="add-btn">
   <a href="add-property.html">+ أضف عقارك الآن</a>
 </div>
 
-<div class="search-box">
-  <select id="filterStatus">
-    <option value="الكل">الكل (بيع وكراء)</option>
-    <option value="بيع">بيع</option>
-    <option value="كراء">كراء</option>
-  </select>
-  <input type="text" id="searchCity" placeholder="اكتب اسم المدينة (مثلاً: وجدة)">
-  <button onclick="searchProperties()">بحث سريع</button>
-</div>
-
-<div class="section-title">أحدث العروض المتاحة</div>
-
 <div id="propertiesContainer">
   </div>
 
-<footer>
-  © 2025 Hani Home – جميع الحقوق محفوظة
-</footer>
+<footer>© 2025 Hani Home – جميع الحقوق محفوظة</footer>
 
 <script>
-  // بيانات تجريبية في حالة لم يكن هناك بيانات مخزنة
-  const defaultData = [
-    { title: "شقة عصرية بوسط المدينة", city: "وجدة", price: "450,000 درهم", type: "بيع", img: "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=400&q=80" },
-    { title: "منزل مستقل قريب من البحر", city: "الناظور", price: "3,000 درهم / شهر", type: "كراء", img: "https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=400&q=80" },
-    { title: "فيلا فاخرة بمساحة كبيرة", city: "طنجة", price: "2,100,000 درهم", type: "بيع", img: "https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&w=400&q=80" }
-  ];
-
-  // دالة لجلب البيانات وعرضها
   function displayProperties() {
     const container = document.getElementById('propertiesContainer');
-    
-    // محاولة جلب البيانات من LocalStorage
-    let storedProperties = JSON.parse(localStorage.getItem('hani_properties')) || [];
-    
-    // دمج البيانات التجريبية مع المخزنة
-    const allProperties = [...storedProperties, ...defaultData];
+    let properties = JSON.parse(localStorage.getItem('hani_properties')) || [];
+
+    if (properties.length === 0) {
+      container.innerHTML = "<p style='text-align:center;'>لا توجد عقارات حالياً. أضف عقارك الأول!</p>";
+      return;
+    }
 
     container.innerHTML = "";
-
-    allProperties.forEach(prop => {
+    properties.forEach((prop, index) => {
+      // تجهيز رابط الواتساب
+      const waLink = `https://wa.me/${prop.phone}?text=السلام عليكم، أنا مهتم بخصوص: ${prop.title}`;
+      
       container.innerHTML += `
-        <div class="card" data-city="${prop.city}" data-type="${prop.type}">
-          <img src="${prop.img}" alt="${prop.title}">
+        <div class="card">
+          <img src="${prop.img}" alt="Property">
           <div class="card-content">
             <strong>${prop.title}</strong>
-            <div class="city">📍 ${prop.city}</div>
+            <div style="color: #64748b; font-size: 14px;">📍 ${prop.city} | ${prop.type}</div>
             <div class="price">${prop.price}</div>
+            
+            <div class="card-actions">
+              <a href="${waLink}" target="_blank" class="whatsapp-btn">واتساب 💬</a>
+              <button onclick="deleteProperty(${index})" class="delete-btn">حذف 🗑️</button>
+            </div>
           </div>
         </div>
       `;
     });
   }
 
-  // دالة البحث والفلترة
-  function searchProperties() {
-    const cityInput = document.getElementById('searchCity').value.trim().toLowerCase();
-    const statusInput = document.getElementById('filterStatus').value;
-    const cards = document.querySelectorAll('.card');
-
-    cards.forEach(card => {
-      const city = card.getAttribute('data-city').toLowerCase();
-      const type = card.getAttribute('data-type');
-      
-      const matchCity = city.includes(cityInput);
-      const matchStatus = (statusInput === "الكل" || type === statusInput);
-
-      if (matchCity && matchStatus) {
-        card.style.display = "block";
-      } else {
-        card.style.display = "none";
-      }
-    });
+  function deleteProperty(index) {
+    if (confirm("واش بصح بغيتي تمسح هاد العقار؟")) {
+      let properties = JSON.parse(localStorage.getItem('hani_properties')) || [];
+      properties.splice(index, 1); // مسح العنصر من المصفوفة
+      localStorage.setItem('hani_properties', JSON.stringify(properties));
+      displayProperties(); // تحديث العرض
+    }
   }
 
-  // تشغيل العرض عند تحميل الصفحة
   window.onload = displayProperties;
 </script>
 
