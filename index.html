@@ -9,29 +9,25 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { --primary: #2ecc71; --dark: #2c3e50; --light: #f4f7f6; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--light); margin: 0; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--light); margin: 0; }
         header { background: var(--dark); color: white; padding: 1rem; display: flex; justify-content: space-between; align-items: center; }
-        .nav-links a { color: white; text-decoration: none; margin: 0 10px; }
-        .btn-add { background: var(--primary); color: white; padding: 8px 15px; border-radius: 5px; text-decoration: none; }
+        .btn-add { background: var(--primary); color: white; padding: 8px 15px; border-radius: 5px; text-decoration: none; font-weight: bold; }
         .container { max-width: 1200px; margin: 20px auto; padding: 0 20px; }
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
-        .card { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: 0.3s; }
+        .card { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         .card img { width: 100%; height: 200px; object-fit: cover; }
         .card-content { padding: 15px; }
-        .price { color: var(--primary); font-size: 1.5rem; font-weight: bold; }
-        .actions { display: flex; gap: 10px; margin-top: 15px; }
-        .btn-wa { background: #25d366; color: white; flex: 2; text-align: center; padding: 10px; border-radius: 8px; text-decoration: none; }
-        .btn-del { background: #ffcccc; color: #cc0000; flex: 1; border: none; padding: 10px; border-radius: 8px; cursor: pointer; }
+        .price { color: var(--primary); font-size: 1.5rem; font-weight: bold; margin: 10px 0; }
+        .actions { display: flex; gap: 10px; }
+        .btn-wa { background: #25d366; color: white; flex: 2; text-align: center; padding: 10px; border-radius: 8px; text-decoration: none; font-weight: bold; }
+        .btn-del { background: #fee2e2; color: #dc2626; flex: 1; border: none; padding: 10px; border-radius: 8px; cursor: pointer; }
     </style>
 </head>
 <body>
 
 <header>
     <h1 style="margin:0; color: var(--primary);">Hani Home</h1>
-    <div class="nav-links">
-        <a href="about.html">من نحن</a>
-        <a href="add-property.html" class="btn-add">+ أضف عقار</a>
-    </div>
+    <a href="add-property.html" class="btn-add">+ أضف عقار</a>
 </header>
 
 <div class="container">
@@ -40,8 +36,7 @@
 </div>
 
 <script>
-    // إعدادات Firebase (سيتم جلبها من ملف .env تلقائياً في البيئة المحلية أو GitHub Secrets)
-    // ملاحظة: تأكد أن ملف .env يحتوي على مفاتيحك الصحيحة
+    // الإعدادات الصحيحة لمشروعك hani-home-app
     const firebaseConfig = {
         apiKey: "AIzaSyClJ6bFMOF_NZgo8fam_sUrj7WrigWGnzM",
         authDomain: "hani-home-app.firebaseapp.com",
@@ -52,47 +47,52 @@
         appId: "1:656083114132:web:f84c97028d91caa5d5bc81"
     };
 
-    firebase.initializeApp(firebaseConfig);
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
     const db = firebase.database();
 
-    // جلب البيانات وعرضها
+    // جلب العقارات وعرضها مباشرة
     db.ref('properties').on('value', (snapshot) => {
         const grid = document.getElementById('propertiesGrid');
         grid.innerHTML = '';
-        snapshot.forEach((childSnapshot) => {
-            const data = childSnapshot.val();
-            const id = childSnapshot.key;
-            grid.innerHTML += `
-                <div class="card">
-                    <img src="${data.image || 'https://via.placeholder.com/400x200'}" alt="عقار">
-                    <div class="card-content">
-                        <h3>${data.title}</h3>
-                        <p><i class="fas fa-map-marker-alt"></i> ${data.city} | ${data.type}</p>
-                        <div class="price">${data.price} درهم</div>
-                        <div class="actions">
-                            <a href="https://wa.me/2126XXXXXXXX?text=أنا مهتم بـ ${data.title}" class="btn-wa">واتساب</a>
-                            <button onclick="deleteProperty('${id}')" class="btn-del">حذف</button>
+        if (snapshot.exists()) {
+            snapshot.forEach((childSnapshot) => {
+                const data = childSnapshot.val();
+                const id = childSnapshot.key;
+                grid.innerHTML += `
+                    <div class="card">
+                        <img src="${data.image || 'https://via.placeholder.com/400x200'}" alt="عقار">
+                        <div class="card-content">
+                            <h3>${data.title}</h3>
+                            <p><i class="fas fa-map-marker-alt"></i> ${data.city}</p>
+                            <div class="price">${data.price} درهم</div>
+                            <div class="actions">
+                                <a href="https://wa.me/2126XXXXXXXX?text=أنا مهتم بـ ${data.title}" class="btn-wa">واتساب</a>
+                                <button onclick="deleteProperty('${id}')" class="btn-del">حذف</button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            `;
-        });
+                `;
+            });
+        } else {
+            grid.innerHTML = '<p style="text-align:center; width:100%;">لا توجد عقارات حالياً. ابدأ بإضافة أول عقار!</p>';
+        }
     });
 
-    // وظيفة الحذف المحمية بكلمة السر الخاصة بك
+    // وظيفة الحذف بكلمة السر @imad123
     function deleteProperty(id) {
-        const password = prompt("من فضلك أدخل كلمة السر لتتمكن من الحذف:");
+        const password = prompt("أدخل كلمة السر للحذف:");
         if (password === '@imad123') {
-            if (confirm('هل أنت متأكد من حذف هذا العقار؟')) {
+            if (confirm('هل أنت متأكد من الحذف؟')) {
                 db.ref('properties/' + id).remove()
-                    .then(() => alert('تم الحذف بنجاح'))
-                    .catch((error) => alert('خطأ: ' + error.message));
+                    .then(() => alert('تم الحذف'))
+                    .catch((e) => alert('خطأ: ' + e.message));
             }
         } else if (password !== null) {
-            alert("كلمة سر خاطئة! لا تملك صلاحية الحذف.");
+            alert("كلمة سر خاطئة!");
         }
     }
 </script>
-
 </body>
 </html>
