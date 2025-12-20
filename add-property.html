@@ -6,12 +6,14 @@
     <title>إضافة عقار - Hani Home</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
     <style>
         :root { --primary: #2ecc71; --dark: #2c3e50; --light: #f4f7f6; }
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--light); padding: 20px; }
         .form-container { max-width: 500px; margin: 0 auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
         input, select, button { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; }
         button { background: var(--primary); color: white; border: none; font-weight: bold; cursor: pointer; }
+        .loading { display: none; color: #2ecc71; text-align: center; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -22,11 +24,16 @@
         <input type="text" id="city" placeholder="المدينة" required>
         <input type="number" id="price" placeholder="الثمن بالدرهم" required>
         <select id="type"><option value="للبيع">للبيع</option><option value="للكراء">للكراء</option></select>
-        <input type="url" id="image" placeholder="رابط صورة العقار">
-        <button type="submit">حفظ العقار</button>
+        
+        <label>اختر صورة من هاتفك:</label>
+        <input type="file" id="imageFile" accept="image/*" required>
+        
+        <div id="loadingMsg" class="loading">جاري رفع الصورة... يرجى الانتظار</div>
+        <button type="submit" id="submitBtn">حفظ العقار</button>
     </form>
     <a href="index.html" style="display:block; text-align:center; margin-top:10px;">العودة للرئيسية</a>
 </div>
+
 <script>
     const firebaseConfig = {
         apiKey: "AIzaSyClJ6bFMOF_NZgo8fam_sUrj7WrigWGnzM",
@@ -37,20 +44,45 @@
         messagingSenderId: "656083114132",
         appId: "1:656083114132:web:f84c97028d91caa5d5bc81"
     };
-    if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+    firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
+    const storage = firebase.storage();
+
     document.getElementById('addPropertyForm').addEventListener('submit', function(e) {
         e.preventDefault();
-        const newProperty = {
-            title: document.getElementById('title').value,
-            city: document.getElementById('city').value,
-            price: document.getElementById('price').value,
-            type: document.getElementById('type').value,
-            image: document.getElementById('image').value || 'https://via.placeholder.com/400x200'
-        };
-        db.ref('properties').push(newProperty)
-            .then(() => { alert('تمت الإضافة بنجاح!'); window.location.href = 'index.html'; })
-            .catch((error) => alert('خطأ: ' + error.message));
+        
+        const file = document.getElementById('imageFile').files[0];
+        const submitBtn = document.getElementById('submitBtn');
+        const loadingMsg = document.getElementById('loadingMsg');
+
+        if (!file) return;
+
+        // إظهار رسالة التحميل
+        submitBtn.disabled = true;
+        loadingMsg.style.display = 'block';
+
+        // 1. رفع الصورة لـ Firebase Storage
+        const storageRef = storage.ref('property_images/' + Date.now() + '_' + file.name);
+        storageRef.put(file).then(snapshot => {
+            return snapshot.ref.getDownloadURL();
+        }).then(url => {
+            // 2. حفظ بيانات العقار مع رابط الصورة الجديد في Database
+            const newProperty = {
+                title: document.getElementById('title').value,
+                city: document.getElementById('city').value,
+                price: document.getElementById('price').value,
+                type: document.getElementById('type').value,
+                image: url // الرابط اللي جا من Storage
+            };
+            return db.ref('properties').push(newProperty);
+        }).then(() => {
+            alert('تم حفظ العقار والصورة بنجاح!');
+            window.location.href = 'index.html';
+        }).catch(error => {
+            alert('خطأ: ' + error.message);
+            submitBtn.disabled = false;
+            loadingMsg.style.display = 'none';
+        });
     });
 </script>
 </body>
