@@ -3,40 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إضافة عقار جديد - Hani Home</title>
+    <title>إضافة عقار - Hani Home</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
         :root { --primary: #2ecc71; --dark: #2c3e50; --light: #f4f7f6; }
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--light); margin: 0; padding: 20px; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--light); padding: 20px; }
         .form-container { max-width: 500px; margin: 0 auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
-        h2 { color: var(--dark); text-align: center; margin-bottom: 25px; }
-        input, select, button { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-        button { background: var(--primary); color: white; border: none; font-weight: bold; cursor: pointer; font-size: 1.1rem; }
-        button:hover { background: #27ae60; }
-        .back-link { display: block; text-align: center; margin-top: 15px; color: var(--dark); text-decoration: none; }
+        input, select, button { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; }
+        button { background: var(--primary); color: white; border: none; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
-
 <div class="form-container">
     <h2>أضف عقار جديد</h2>
     <form id="addPropertyForm">
-        <input type="text" id="title" placeholder="عنوان العقار (مثلاً: شقة فاخرة)" required>
-        <input type="text" id="city" placeholder="المدينة (مثلاً: بركان)" required>
+        <input type="text" id="title" placeholder="عنوان العقار" required>
+        <input type="text" id="city" placeholder="المدينة" required>
         <input type="number" id="price" placeholder="الثمن بالدرهم" required>
-        <select id="type">
-            <option value="للبيع">للبيع</option>
-            <option value="للكراء">للكراء</option>
-        </select>
-        <input type="url" id="image" placeholder="رابط صورة العقار (URL)">
-        <button type="submit">حفظ العقار وتنشره</button>
+        <select id="type"><option value="للبيع">للبيع</option><option value="للكراء">للكراء</option></select>
+        <input type="url" id="image" placeholder="رابط صورة العقار">
+        <button type="submit">حفظ العقار</button>
     </form>
-    <a href="index.html" class="back-link">← العودة للرئيسية</a>
+    <a href="index.html" style="display:block; text-align:center; margin-top:10px;">العودة للرئيسية</a>
 </div>
-
 <script>
-    // الإعدادات الصحيحة والمطابقة لملف index.html
     const firebaseConfig = {
         apiKey: "AIzaSyClJ6bFMOF_NZgo8fam_sUrj7WrigWGnzM",
         authDomain: "hani-home-app.firebaseapp.com",
@@ -46,37 +37,21 @@
         messagingSenderId: "656083114132",
         appId: "1:656083114132:web:f84c97028d91caa5d5bc81"
     };
-
-    // تهيئة Firebase
-    if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-    }
+    if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
     const db = firebase.database();
-
-    // معالجة إرسال النموذج
     document.getElementById('addPropertyForm').addEventListener('submit', function(e) {
         e.preventDefault();
-
         const newProperty = {
             title: document.getElementById('title').value,
             city: document.getElementById('city').value,
             price: document.getElementById('price').value,
             type: document.getElementById('type').value,
-            image: document.getElementById('image').value || 'https://via.placeholder.com/400x200',
-            timestamp: Date.now()
+            image: document.getElementById('image').value || 'https://via.placeholder.com/400x200'
         };
-
-        // حفظ البيانات في فرع properties
         db.ref('properties').push(newProperty)
-            .then(() => {
-                alert('تمت إضافة العقار بنجاح!');
-                window.location.href = 'index.html'; // العودة للرئيسية لرؤية العقار
-            })
-            .catch((error) => {
-                alert('خطأ في الإضافة: ' + error.message);
-            });
+            .then(() => { alert('تمت الإضافة بنجاح!'); window.location.href = 'index.html'; })
+            .catch((error) => alert('خطأ: ' + error.message));
     });
 </script>
-
 </body>
 </html>
