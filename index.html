@@ -9,82 +9,127 @@
     body { margin: 0; background: #f1f5f9; direction: rtl; }
     header { background: #0f172a; color: white; padding: 20px; text-align: center; }
     .container { max-width: 600px; margin: auto; padding: 15px; }
+    
+    /* أزرار التحكم */
     .nav-btn { display: block; background: #16a34a; color: white; text-align: center; padding: 12px; border-radius: 10px; text-decoration: none; font-weight: bold; margin-bottom: 10px; }
     .clear-btn { width: 100%; background: #64748b; color: white; border: none; padding: 10px; border-radius: 10px; margin-bottom: 20px; cursor: pointer; font-weight: bold; }
+    
+    /* صندوق البحث */
     .search-box { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
     .search-box input, .search-box select { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 8px; }
     .search-box button { width: 100%; padding: 10px; background: #2563eb; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+
+    /* بطاقة العقار */
     .card { background: white; border-radius: 12px; overflow: hidden; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-    .card img { width: 100%; height: 200px; object-fit: cover; }
+    .card img { width: 100%; height: 220px; object-fit: cover; }
     .card-info { padding: 15px; }
-    .price { color: #16a34a; font-weight: bold; font-size: 1.2rem; display: block; margin: 10px 0; }
-    .btns { display: flex; gap: 8px; }
+    .card-info strong { font-size: 1.1rem; color: #1e293b; }
+    .price { color: #16a34a; font-weight: bold; font-size: 1.2rem; display: block; margin: 8px 0; }
+    
+    .btns { display: flex; gap: 8px; margin-top: 10px; }
     .btn-wa { flex: 2; background: #25d366; color: white; text-align: center; padding: 10px; border-radius: 8px; text-decoration: none; font-weight: bold; }
     .btn-del { flex: 1; background: #fee2e2; color: #ef4444; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
   </style>
 </head>
 <body>
-  <header><h1>Hani Home</h1></header>
-  <div class="container">
-    <a href="add-property.html" class="nav-btn">+ أضف عقار جديد</a>
-    <button onclick="clearStorage()" class="clear-btn">⚠️ تنظيف الذاكرة (حل مشكل الحفظ)</button>
-    <div class="search-box">
-      <input type="text" id="cityInp" placeholder="ابحث بالمدينة...">
-      <select id="typeInp">
-        <option value="الكل">كل الأنواع</option>
-        <option value="بيع">بيع</option>
-        <option value="كراء">كراء</option>
-      </select>
-      <button onclick="doSearch()">بحث</button>
-    </div>
-    <div id="list"></div>
+
+<header>
+  <h1>Hani Home</h1>
+  <p>اعثر على منزل أحلامك بكل سهولة</p>
+</header>
+
+<div class="container">
+  <a href="add-property.html" class="nav-btn">+ أضف عقار جديد</a>
+  <button onclick="clearAll()" class="clear-btn">⚠️ تفريغ الذاكرة (إعادة ضبط)</button>
+
+  <div class="search-box">
+    <input type="text" id="citySearch" placeholder="ابحث بالمدينة (مثلاً: وجدة)...">
+    <select id="typeFilter">
+      <option value="الكل">كل الأنواع</option>
+      <option value="بيع">بيع</option>
+      <option value="كراء">كراء</option>
+    </select>
+    <button onclick="filterItems()">بحث سريع</button>
   </div>
 
-  <script>
-    function showData() {
-      const list = document.getElementById('list');
-      const data = JSON.parse(localStorage.getItem('hani_properties')) || [];
-      list.innerHTML = data.length ? "" : "<p style='text-align:center'>لا توجد عقارات حالياً.</p>";
-      data.forEach((item, i) => {
-        list.innerHTML += `
-          <div class="card" data-city="${item.city}" data-type="${item.type}">
-            <img src="${item.img}">
-            <div class="card-info">
-              <strong>${item.title}</strong>
-              <div style="font-size:14px; color:gray">📍 ${item.city} | ${item.type}</div>
-              <span class="price">${item.price}</span>
-              <div class="btns">
-                <a href="https://wa.me/${item.phone}?text=مهتم بـ ${item.title}" class="btn-wa">واتساب</a>
-                <button onclick="remove(${i})" class="btn-del">حذف</button>
-              </div>
+  <div id="propertyList"></div>
+</div>
+
+<script>
+  // 1. إضافة بيانات تجريبية إذا كان الموقع فارغاً
+  function initDemo() {
+    if (!localStorage.getItem('hani_properties')) {
+      const demoData = [
+        { title: "شقة عصرية مجهزة", city: "وجدة", price: "450,000 درهم", type: "بيع", phone: "212600000000", img: "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=500" },
+        { title: "فيلا فاخرة بمسبح", city: "طنجة", price: "2,100,000 درهم", type: "بيع", phone: "212600000000", img: "https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=500" },
+        { title: "منزل للكراء اليومي", city: "الناظور", price: "400 درهم / يوم", type: "كراء", phone: "212600000000", img: "https://images.unsplash.com/photo-1484154218962-a197022b5858?w=500" }
+      ];
+      localStorage.setItem('hani_properties', JSON.stringify(demoData));
+    }
+  }
+
+  // 2. عرض العقارات في الصفحة
+  function displayAll() {
+    const list = document.getElementById('propertyList');
+    const data = JSON.parse(localStorage.getItem('hani_properties')) || [];
+    
+    list.innerHTML = data.length ? "" : "<p style='text-align:center'>لا توجد عقارات لعرضها.</p>";
+
+    data.forEach((item, index) => {
+      list.innerHTML += `
+        <div class="card" data-city="${item.city}" data-type="${item.type}">
+          <img src="${item.img}" alt="Property">
+          <div class="card-info">
+            <strong>${item.title}</strong>
+            <div style="color: #64748b; font-size: 14px; margin-top:5px;">📍 ${item.city} | ${item.type}</div>
+            <span class="price">${item.price}</span>
+            <div class="btns">
+              <a href="https://wa.me/${item.phone}?text=أنا مهتم بـ ${item.title}" target="_blank" class="btn-wa">واتساب 💬</a>
+              <button onclick="deleteItem(${index})" class="btn-del">حذف 🗑️</button>
             </div>
-          </div>`;
-      });
+          </div>
+        </div>
+      `;
+    });
+  }
+
+  // 3. دالة البحث
+  function filterItems() {
+    const city = document.getElementById('citySearch').value.toLowerCase();
+    const type = document.getElementById('typeFilter').value;
+    
+    document.querySelectorAll('.card').forEach(card => {
+      const cardCity = card.getAttribute('data-city').toLowerCase();
+      const cardType = card.getAttribute('data-type');
+      const match = cardCity.includes(city) && (type === "الكل" || cardType === type);
+      card.style.display = match ? "block" : "none";
+    });
+  }
+
+  // 4. حذف عقار
+  function deleteItem(i) {
+    if(confirm("هل أنت متأكد من حذف هذا العقار؟")) {
+      let data = JSON.parse(localStorage.getItem('hani_properties'));
+      data.splice(i, 1);
+      localStorage.setItem('hani_properties', JSON.stringify(data));
+      displayAll();
     }
-    function doSearch() {
-      const city = document.getElementById('cityInp').value.toLowerCase();
-      const type = document.getElementById('typeInp').value;
-      document.querySelectorAll('.card').forEach(card => {
-        const cCity = card.getAttribute('data-city').toLowerCase();
-        const cType = card.getAttribute('data-type');
-        card.style.display = (cCity.includes(city) && (type === "الكل" || cType === type)) ? "block" : "none";
-      });
+  }
+
+  // 5. مسح كل شيء
+  function clearAll() {
+    if(confirm("سيتم مسح كافة البيانات. هل تود الاستمرار؟")) {
+      localStorage.removeItem('hani_properties');
+      location.reload();
     }
-    function remove(i) {
-      if(confirm("تمسح العقار؟")) {
-        let d = JSON.parse(localStorage.getItem('hani_properties'));
-        d.splice(i, 1);
-        localStorage.setItem('hani_properties', JSON.stringify(d));
-        showData();
-      }
-    }
-    function clearStorage() {
-      if(confirm("سيتم مسح جميع البيانات لتفريغ المساحة. هل أنت متأكد؟")) {
-        localStorage.removeItem('hani_properties');
-        location.reload();
-      }
-    }
-    window.onload = showData;
-  </script>
+  }
+
+  // التشغيل عند فتح الصفحة
+  window.onload = () => {
+    initDemo();
+    displayAll();
+  };
+</script>
+
 </body>
 </html>
