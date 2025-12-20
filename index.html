@@ -24,19 +24,14 @@
     </style>
 </head>
 <body>
-
 <header>
     <h1 style="margin:0; color: var(--primary);">Hani Home</h1>
     <a href="add-property.html" class="btn-add">+ أضف عقار</a>
 </header>
-
 <div class="container">
-    <div id="propertiesGrid" class="grid">
-        </div>
+    <div id="propertiesGrid" class="grid"></div>
 </div>
-
 <script>
-    // الإعدادات الصحيحة لمشروعك hani-home-app
     const firebaseConfig = {
         apiKey: "AIzaSyClJ6bFMOF_NZgo8fam_sUrj7WrigWGnzM",
         authDomain: "hani-home-app.firebaseapp.com",
@@ -46,13 +41,8 @@
         messagingSenderId: "656083114132",
         appId: "1:656083114132:web:f84c97028d91caa5d5bc81"
     };
-
-    if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-    }
+    if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
     const db = firebase.database();
-
-    // جلب العقارات وعرضها مباشرة
     db.ref('properties').on('value', (snapshot) => {
         const grid = document.getElementById('propertiesGrid');
         grid.innerHTML = '';
@@ -72,26 +62,17 @@
                                 <button onclick="deleteProperty('${id}')" class="btn-del">حذف</button>
                             </div>
                         </div>
-                    </div>
-                `;
+                    </div>`;
             });
-        } else {
-            grid.innerHTML = '<p style="text-align:center; width:100%;">لا توجد عقارات حالياً. ابدأ بإضافة أول عقار!</p>';
-        }
+        } else { grid.innerHTML = '<p style="text-align:center; width:100%;">لا توجد عقارات حالياً.</p>'; }
     });
-
-    // وظيفة الحذف بكلمة السر @imad123
     function deleteProperty(id) {
         const password = prompt("أدخل كلمة السر للحذف:");
         if (password === '@imad123') {
             if (confirm('هل أنت متأكد من الحذف؟')) {
-                db.ref('properties/' + id).remove()
-                    .then(() => alert('تم الحذف'))
-                    .catch((e) => alert('خطأ: ' + e.message));
+                db.ref('properties/' + id).remove().then(() => alert('تم الحذف'));
             }
-        } else if (password !== null) {
-            alert("كلمة سر خاطئة!");
-        }
+        } else if (password !== null) { alert("كلمة سر خاطئة!"); }
     }
 </script>
 </body>
