@@ -7,117 +7,68 @@
   <style>
     * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
     body { margin: 0; background: #f4f6f8; direction: rtl; padding: 20px; }
-    .form-container { 
-      background: white; padding: 25px; border-radius: 15px; 
-      max-width: 500px; margin: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    }
-    header { text-align: center; margin-bottom: 20px; color: #0f172a; }
+    .form-container { background: white; padding: 25px; border-radius: 15px; max-width: 500px; margin: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
     label { display: block; margin-bottom: 5px; font-weight: bold; color: #334155; }
-    input, select, button { 
-      width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 8px; 
-      border: 1px solid #ddd; font-size: 15px;
-    }
+    input, select, button { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #ddd; }
     button { background: #16a34a; color: white; border: none; cursor: pointer; font-weight: bold; }
-    button:hover { background: #15803d; }
-    .preview-img { width: 100%; height: auto; border-radius: 8px; margin-bottom: 15px; display: none; border: 2px solid #ddd; }
-    .back-link { display: block; text-align: center; color: #64748b; text-decoration: none; font-size: 14px; margin-top: 10px; }
+    .preview-img { width: 100%; border-radius: 8px; margin-bottom: 15px; display: none; }
   </style>
 </head>
 <body>
+  <div class="form-container">
+    <h2 style="text-align:center">إضافة عقار جديد</h2>
+    <label>العنوان</label><input type="text" id="title" placeholder="مثلاً: شقة للكراء">
+    <label>المدينة</label><input type="text" id="city" placeholder="مثلاً: وجدة">
+    <label>الثمن</label><input type="text" id="price" placeholder="مثلاً: 2000 درهم">
+    <label>الهاتف</label><input type="tel" id="phone" placeholder="06XXXXXXXX">
+    <label>النوع</label>
+    <select id="type"><option value="بيع">بيع</option><option value="كراء">كراء</option></select>
+    <label>الصورة</label><input type="file" id="fileInput" accept="image/*" onchange="compressImg()">
+    <img id="imgPreview" class="preview-img">
+    <button onclick="save()">حفظ ونشر</button>
+    <a href="index.html" style="display:block; text-align:center; color:gray; text-decoration:none">إلغاء</a>
+  </div>
 
-<div class="form-container">
-  <header>
-    <h2>أضف عقار جديد</h2>
-  </header>
-
-  <label>عنوان العقار</label>
-  <input type="text" id="title" placeholder="مثلاً: منزل طابقين للبيع">
-
-  <label>المدينة</label>
-  <input type="text" id="city" placeholder="مثلاً: وجدة">
-
-  <label>الثمن</label>
-  <input type="text" id="price" placeholder="مثلاً: 2500 درهم">
-
-  <label>رقم الهاتف (واتساب)</label>
-  <input type="tel" id="phone" placeholder="06XXXXXXXX">
-
-  <label>نوع العرض</label>
-  <select id="type">
-    <option value="بيع">بيع</option>
-    <option value="كراء">كراء</option>
-  </select>
-
-  <label>صورة العقار (سيتم تصغيرها تلقائياً)</label>
-  <input type="file" id="fileInput" accept="image/*" onchange="previewAndCompressImage()">
-  <img id="imgPreview" class="preview-img">
-
-  <button onclick="saveProperty()">حفظ ونشر الآن</button>
-  <a href="index.html" class="back-link">← العودة للرئيسية</a>
-</div>
-
-<script>
-  let compressedBase64 = "";
-
-  // دالة تصغير الصورة لضمان عدم تجاوز مساحة LocalStorage
-  function previewAndCompressImage() {
-    const file = document.getElementById('fileInput').files[0];
-    const preview = document.getElementById('imgPreview');
-    const reader = new FileReader();
-
-    reader.onload = function(e) {
-      const img = new Image();
-      img.src = e.target.result;
-      img.onload = function() {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        
-        // تحديد العرض الأقصى في 500 بكسل لتوفير المساحة
-        const maxWidth = 500;
-        const scale = maxWidth / img.width;
-        canvas.width = maxWidth;
-        canvas.height = img.height * scale;
-
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        
-        // تحويل الصورة لـ JPEG بجودة 0.6 (توازن بين الحجم والوضوح)
-        compressedBase64 = canvas.toDataURL('image/jpeg', 0.6);
-        preview.src = compressedBase64;
-        preview.style.display = "block";
+  <script>
+    let finalImg = "";
+    function compressImg() {
+      const file = document.getElementById('fileInput').files[0];
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.src = e.target.result;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const maxWidth = 400; // تصغير العرض لتوفير المساحة
+          const scale = maxWidth / img.width;
+          canvas.width = maxWidth; canvas.height = img.height * scale;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          finalImg = canvas.toDataURL('image/jpeg', 0.5); // ضغط الجودة لـ 50%
+          document.getElementById('imgPreview').src = finalImg;
+          document.getElementById('imgPreview').style.display = "block";
+        };
       };
-    };
-    if (file) { reader.readAsDataURL(file); }
-  }
-
-  function saveProperty() {
-    const title = document.getElementById('title').value.trim();
-    const city = document.getElementById('city').value.trim();
-    const price = document.getElementById('price').value.trim();
-    const phone = document.getElementById('phone').value.trim();
-    const type = document.getElementById('type').value;
-
-    if(!title || !city || !price || !phone) {
-      alert("المرجو ملء جميع الخانات!");
-      return;
+      reader.readAsDataURL(file);
     }
 
-    const newProperty = { 
-      title, city, price, type, phone,
-      img: compressedBase64 || "https://via.placeholder.com/400x200?text=Hani+Home"
-    };
+    function save() {
+      const title = document.getElementById('title').value;
+      const city = document.getElementById('city').value;
+      const phone = document.getElementById('phone').value;
+      if(!title || !city || !phone) return alert("عمر الخانات!");
 
-    try {
-      let properties = JSON.parse(localStorage.getItem('hani_properties')) || [];
-      properties.unshift(newProperty);
-      localStorage.setItem('hani_properties', JSON.stringify(properties));
+      const newProp = { title, city, phone, price: document.getElementById('price').value, type: document.getElementById('type').value, img: finalImg };
       
-      alert("تم الحفظ بنجاح!");
-      window.location.href = "index.html";
-    } catch (e) {
-      alert("عذراً، مساحة المتصفح لا تكفي حتى مع التصغير. جرب صورة أصغر.");
+      try {
+        let data = JSON.parse(localStorage.getItem('hani_properties')) || [];
+        data.unshift(newProp);
+        localStorage.setItem('hani_properties', JSON.stringify(data));
+        alert("تم الحفظ!"); window.location.href = "index.html";
+      } catch (e) {
+        alert("الذاكرة ممتلئة! استعمل زر 'تنظيف الذاكرة' في الصفحة الرئيسية.");
+      }
     }
-  }
-</script>
-
+  </script>
 </body>
 </html>
