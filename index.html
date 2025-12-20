@@ -1,139 +1,97 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <title>Hani Home | الرئيسية</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; }
-    body { background: #f1f5f9; direction: rtl; padding-top: 70px; } /* مسافة عشان الشريط الفوقاني */
-    
-    /* شريط التنقل العلوي */
-    .navbar {
-      background: #0f172a;
-      color: white;
-      padding: 10px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      position: fixed;
-      top: 0; width: 100%;
-      z-index: 1000;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-    }
-    .nav-logo { font-size: 22px; font-weight: bold; color: #16a34a; text-decoration: none; }
-    .nav-links { display: flex; gap: 15px; }
-    .nav-links a { color: white; text-decoration: none; font-size: 14px; font-weight: 500; }
-    .nav-links a:hover { color: #16a34a; }
-
-    .container { max-width: 600px; margin: auto; padding: 15px; }
-    
-    /* زر الإضافة السريع */
-    .add-btn-nav { background: #16a34a; padding: 6px 12px; border-radius: 8px; font-weight: bold; }
-
-    /* صندوق البحث */
-    .search-box { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
-    .search-box input, .search-box select { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 8px; }
-    .search-box button { width: 100%; padding: 10px; background: #2563eb; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
-
-    /* بطاقة العقار */
-    .card { background: white; border-radius: 12px; overflow: hidden; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-    .card img { width: 100%; height: 220px; object-fit: cover; }
-    .card-info { padding: 15px; }
-    .price { color: #16a34a; font-weight: bold; font-size: 1.2rem; display: block; margin: 8px 0; }
-    .btns { display: flex; gap: 8px; }
-    .btn-wa { flex: 2; background: #25d366; color: white; text-align: center; padding: 10px; border-radius: 8px; text-decoration: none; font-weight: bold; }
-    .btn-del { flex: 1; background: #fee2e2; color: #ef4444; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hani Home - الرئيسية</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --primary: #2ecc71; --dark: #2c3e50; --light: #f4f7f6; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--light); margin: 0; }
+        header { background: var(--dark); color: white; padding: 1rem; display: flex; justify-content: space-between; align-items: center; }
+        .nav-links a { color: white; text-decoration: none; margin: 0 10px; }
+        .btn-add { background: var(--primary); color: white; padding: 8px 15px; border-radius: 5px; text-decoration: none; }
+        .container { max-width: 1200px; margin: 20px auto; padding: 0 20px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        .card { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: 0.3s; }
+        .card img { width: 100%; height: 200px; object-fit: cover; }
+        .card-content { padding: 15px; }
+        .price { color: var(--primary); font-size: 1.5rem; font-weight: bold; }
+        .actions { display: flex; gap: 10px; margin-top: 15px; }
+        .btn-wa { background: #25d366; color: white; flex: 2; text-align: center; padding: 10px; border-radius: 8px; text-decoration: none; }
+        .btn-del { background: #ffcccc; color: #cc0000; flex: 1; border: none; padding: 10px; border-radius: 8px; cursor: pointer; }
+    </style>
 </head>
 <body>
 
-<nav class="navbar">
-  <a href="index.html" class="nav-logo">Hani Home</a>
-  <div class="nav-links">
-    <a href="#search-section">بحث</a>
-    <a href="about.html">من نحن</a>
-    <a href="add-property.html" class="add-btn-nav">+ أضف عقار</a>
-  </div>
-</nav>
+<header>
+    <h1 style="margin:0; color: var(--primary);">Hani Home</h1>
+    <div class="nav-links">
+        <a href="about.html">من نحن</a>
+        <a href="add-property.html" class="btn-add">+ أضف عقار</a>
+    </div>
+</header>
 
 <div class="container">
-  <button onclick="clearAll()" style="width:100%; background:#64748b; color:white; border:none; padding:10px; border-radius:10px; margin-bottom:20px; font-weight:bold; cursor:pointer;">
-    ⚠️ إعادة ضبط الموقع
-  </button>
-
-  <div class="search-box" id="search-section">
-    <input type="text" id="citySearch" placeholder="ابحث بالمدينة...">
-    <select id="typeFilter">
-      <option value="الكل">كل الأنواع</option>
-      <option value="بيع">بيع</option>
-      <option value="كراء">كراء</option>
-    </select>
-    <button onclick="filterItems()">ابدأ البحث</button>
-  </div>
-
-  <div id="propertyList"></div>
+    <div id="propertiesGrid" class="grid">
+        </div>
 </div>
 
 <script>
-  function initDemo() {
-    if (!localStorage.getItem('hani_properties')) {
-      const demoData = [
-        { title: "شقة عصرية مجهزة", city: "وجدة", price: "450,000 درهم", type: "بيع", phone: "212600000000", img: "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=500" },
-        { title: "فيلا فاخرة بمسبح", city: "طنجة", price: "2,100,000 درهم", type: "بيع", phone: "212600000000", img: "https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=500" }
-      ];
-      localStorage.setItem('hani_properties', JSON.stringify(demoData));
-    }
-  }
+    // إعدادات Firebase (سيتم جلبها من ملف .env تلقائياً في البيئة المحلية أو GitHub Secrets)
+    // ملاحظة: تأكد أن ملف .env يحتوي على مفاتيحك الصحيحة
+    const firebaseConfig = {
+        apiKey: "AIzaSyClJ6bFMOF_NZgo8fam_sUrj7WrigWGnzM",
+        authDomain: "hani-home-app.firebaseapp.com",
+        databaseURL: "https://hani-home-app-default-rtdb.firebaseio.com",
+        projectId: "hani-home-app",
+        storageBucket: "hani-home-app.firebasestorage.app",
+        messagingSenderId: "656083114132",
+        appId: "1:656083114132:web:f84c97028d91caa5d5bc81"
+    };
 
-  function displayAll() {
-    const list = document.getElementById('propertyList');
-    const data = JSON.parse(localStorage.getItem('hani_properties')) || [];
-    list.innerHTML = data.length ? "" : "<p style='text-align:center'>لا توجد عقارات.</p>";
-    data.forEach((item, index) => {
-      list.innerHTML += `
-        <div class="card" data-city="${item.city}" data-type="${item.type}">
-          <img src="${item.img}">
-          <div class="card-info">
-            <strong>${item.title}</strong>
-            <p style="color:gray; font-size:14px;">📍 ${item.city} | ${item.type}</p>
-            <span class="price">${item.price}</span>
-            <div class="btns">
-              <a href="https://wa.me/${item.phone}" class="btn-wa">واتساب</a>
-              <button onclick="deleteItem(${index})" class="btn-del">حذف</button>
-            </div>
-          </div>
-        </div>`;
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // جلب البيانات وعرضها
+    db.ref('properties').on('value', (snapshot) => {
+        const grid = document.getElementById('propertiesGrid');
+        grid.innerHTML = '';
+        snapshot.forEach((childSnapshot) => {
+            const data = childSnapshot.val();
+            const id = childSnapshot.key;
+            grid.innerHTML += `
+                <div class="card">
+                    <img src="${data.image || 'https://via.placeholder.com/400x200'}" alt="عقار">
+                    <div class="card-content">
+                        <h3>${data.title}</h3>
+                        <p><i class="fas fa-map-marker-alt"></i> ${data.city} | ${data.type}</p>
+                        <div class="price">${data.price} درهم</div>
+                        <div class="actions">
+                            <a href="https://wa.me/2126XXXXXXXX?text=أنا مهتم بـ ${data.title}" class="btn-wa">واتساب</a>
+                            <button onclick="deleteProperty('${id}')" class="btn-del">حذف</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
     });
-  }
 
-  function filterItems() {
-    const city = document.getElementById('citySearch').value.toLowerCase();
-    const type = document.getElementById('typeFilter').value;
-    document.querySelectorAll('.card').forEach(card => {
-      const cardCity = card.getAttribute('data-city').toLowerCase();
-      const cardType = card.getAttribute('data-type');
-      card.style.display = (cardCity.includes(city) && (type === "الكل" || cardType === type)) ? "block" : "none";
-    });
-  }
-
-  function deleteItem(i) {
-    if(confirm("حذف؟")) {
-      let data = JSON.parse(localStorage.getItem('hani_properties'));
-      data.splice(i, 1);
-      localStorage.setItem('hani_properties', JSON.stringify(data));
-      displayAll();
+    // وظيفة الحذف المحمية بكلمة السر الخاصة بك
+    function deleteProperty(id) {
+        const password = prompt("من فضلك أدخل كلمة السر لتتمكن من الحذف:");
+        if (password === '@imad123') {
+            if (confirm('هل أنت متأكد من حذف هذا العقار؟')) {
+                db.ref('properties/' + id).remove()
+                    .then(() => alert('تم الحذف بنجاح'))
+                    .catch((error) => alert('خطأ: ' + error.message));
+            }
+        } else if (password !== null) {
+            alert("كلمة سر خاطئة! لا تملك صلاحية الحذف.");
+        }
     }
-  }
-
-  function clearAll() {
-    if(confirm("إعادة ضبط؟")) {
-      localStorage.removeItem('hani_properties');
-      location.reload();
-    }
-  }
-
-  window.onload = () => { initDemo(); displayAll(); };
 </script>
 
 </body>
