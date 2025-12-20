@@ -2,111 +2,89 @@
 <html lang="ar">
 <head>
   <meta charset="UTF-8">
-  <title>Hani Home | الصفحة الرئيسية</title>
+  <title>Hani Home | الرئيسية</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-    body { margin: 0; background: #f4f6f8; direction: rtl; }
-    header { background: #0f172a; color: white; padding: 25px; text-align: center; }
-    
-    .main-container { padding: 15px; max-width: 600px; margin: auto; }
-    
-    /* مربع البحث */
-    .search-section { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
-    .search-section input, .search-section select { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 8px; }
-    .search-section button { width: 100%; padding: 10px; background: #2563eb; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
-
-    .add-link { display: block; text-align: center; background: #16a34a; color: white; padding: 12px; border-radius: 10px; text-decoration: none; font-weight: bold; margin-bottom: 20px; }
-    
-    .card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px; }
+    body { margin: 0; background: #f1f5f9; direction: rtl; }
+    header { background: #0f172a; color: white; padding: 20px; text-align: center; }
+    .container { max-width: 600px; margin: auto; padding: 15px; }
+    .nav-btn { display: block; background: #16a34a; color: white; text-align: center; padding: 12px; border-radius: 10px; text-decoration: none; font-weight: bold; margin-bottom: 10px; }
+    .clear-btn { width: 100%; background: #64748b; color: white; border: none; padding: 10px; border-radius: 10px; margin-bottom: 20px; cursor: pointer; font-weight: bold; }
+    .search-box { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
+    .search-box input, .search-box select { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 8px; }
+    .search-box button { width: 100%; padding: 10px; background: #2563eb; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+    .card { background: white; border-radius: 12px; overflow: hidden; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
     .card img { width: 100%; height: 200px; object-fit: cover; }
-    .card-body { padding: 15px; }
-    .price { color: #16a34a; font-weight: bold; font-size: 1.2rem; margin: 10px 0; }
-    
-    .actions { display: flex; gap: 10px; }
+    .card-info { padding: 15px; }
+    .price { color: #16a34a; font-weight: bold; font-size: 1.2rem; display: block; margin: 10px 0; }
+    .btns { display: flex; gap: 8px; }
     .btn-wa { flex: 2; background: #25d366; color: white; text-align: center; padding: 10px; border-radius: 8px; text-decoration: none; font-weight: bold; }
-    .btn-del { flex: 1; background: #ef4444; color: white; border: none; border-radius: 8px; cursor: pointer; }
+    .btn-del { flex: 1; background: #fee2e2; color: #ef4444; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
   </style>
 </head>
 <body>
-
-<header>
-  <h1>Hani Home</h1>
-  <p>البحث عن منزل أحلامك في المغرب</p>
-</header>
-
-<div class="main-container">
-  <a href="add-property.html" class="add-link">+ أضف عقار جديد</a>
-
-  <div class="search-section">
-    <input type="text" id="citySearch" placeholder="ابحث عن مدينة (مثلاً: وجدة)">
-    <select id="typeFilter">
-      <option value="الكل">كل الأنواع</option>
-      <option value="بيع">بيع</option>
-      <option value="كراء">كراء</option>
-    </select>
-    <button onclick="filterProperties()">بحث</button>
+  <header><h1>Hani Home</h1></header>
+  <div class="container">
+    <a href="add-property.html" class="nav-btn">+ أضف عقار جديد</a>
+    <button onclick="clearStorage()" class="clear-btn">⚠️ تنظيف الذاكرة (حل مشكل الحفظ)</button>
+    <div class="search-box">
+      <input type="text" id="cityInp" placeholder="ابحث بالمدينة...">
+      <select id="typeInp">
+        <option value="الكل">كل الأنواع</option>
+        <option value="بيع">بيع</option>
+        <option value="كراء">كراء</option>
+      </select>
+      <button onclick="doSearch()">بحث</button>
+    </div>
+    <div id="list"></div>
   </div>
 
-  <div id="propertyList">
-    </div>
-</div>
-
-<script>
-  function loadProperties() {
-    const list = document.getElementById('propertyList');
-    const properties = JSON.parse(localStorage.getItem('hani_properties')) || [];
-    
-    if (properties.length === 0) {
-      list.innerHTML = "<p style='text-align:center; color:#64748b;'>لا توجد عقارات حالياً.</p>";
-      return;
-    }
-
-    list.innerHTML = "";
-    properties.forEach((p, index) => {
-      list.innerHTML += `
-        <div class="card" data-city="${p.city}" data-type="${p.type}">
-          <img src="${p.img}">
-          <div class="card-body">
-            <strong>${p.title}</strong>
-            <p style="margin:5px 0; color:#64748b;">📍 ${p.city} | ${p.type}</p>
-            <div class="price">${p.price}</div>
-            <div class="actions">
-              <a href="https://wa.me/${p.phone}" target="_blank" class="btn-wa">واتساب 💬</a>
-              <button onclick="deleteProp(${index})" class="btn-del">حذف 🗑️</button>
+  <script>
+    function showData() {
+      const list = document.getElementById('list');
+      const data = JSON.parse(localStorage.getItem('hani_properties')) || [];
+      list.innerHTML = data.length ? "" : "<p style='text-align:center'>لا توجد عقارات حالياً.</p>";
+      data.forEach((item, i) => {
+        list.innerHTML += `
+          <div class="card" data-city="${item.city}" data-type="${item.type}">
+            <img src="${item.img}">
+            <div class="card-info">
+              <strong>${item.title}</strong>
+              <div style="font-size:14px; color:gray">📍 ${item.city} | ${item.type}</div>
+              <span class="price">${item.price}</span>
+              <div class="btns">
+                <a href="https://wa.me/${item.phone}?text=مهتم بـ ${item.title}" class="btn-wa">واتساب</a>
+                <button onclick="remove(${i})" class="btn-del">حذف</button>
+              </div>
             </div>
-          </div>
-        </div>
-      `;
-    });
-  }
-
-  function filterProperties() {
-    const city = document.getElementById('citySearch').value.toLowerCase();
-    const type = document.getElementById('typeFilter').value;
-    const cards = document.querySelectorAll('.card');
-
-    cards.forEach(card => {
-      const cardCity = card.getAttribute('data-city').toLowerCase();
-      const cardType = card.getAttribute('data-type');
-      const matchesCity = cardCity.includes(city);
-      const matchesType = (type === "الكل" || cardType === type);
-
-      card.style.display = (matchesCity && matchesType) ? "block" : "none";
-    });
-  }
-
-  function deleteProp(index) {
-    if(confirm("هل تريد حذف هذا العقار؟")) {
-      let props = JSON.parse(localStorage.getItem('hani_properties'));
-      props.splice(index, 1);
-      localStorage.setItem('hani_properties', JSON.stringify(props));
-      loadProperties();
+          </div>`;
+      });
     }
-  }
-
-  window.onload = loadProperties;
-</script>
-
+    function doSearch() {
+      const city = document.getElementById('cityInp').value.toLowerCase();
+      const type = document.getElementById('typeInp').value;
+      document.querySelectorAll('.card').forEach(card => {
+        const cCity = card.getAttribute('data-city').toLowerCase();
+        const cType = card.getAttribute('data-type');
+        card.style.display = (cCity.includes(city) && (type === "الكل" || cType === type)) ? "block" : "none";
+      });
+    }
+    function remove(i) {
+      if(confirm("تمسح العقار؟")) {
+        let d = JSON.parse(localStorage.getItem('hani_properties'));
+        d.splice(i, 1);
+        localStorage.setItem('hani_properties', JSON.stringify(d));
+        showData();
+      }
+    }
+    function clearStorage() {
+      if(confirm("سيتم مسح جميع البيانات لتفريغ المساحة. هل أنت متأكد؟")) {
+        localStorage.removeItem('hani_properties');
+        location.reload();
+      }
+    }
+    window.onload = showData;
+  </script>
 </body>
 </html>
